@@ -5,11 +5,6 @@
 # Or: ./extract-rpc-requests.sh < /tmp/eth-rpc.log > eth-rpc.log
 
 # Read from stdin (pipe or redirect)
-# Look for lines with recv= and extract the JSON content
-grep 'recv=' | sed -E 's/.*recv="(.*)"/\1/' | while read -r line; do
-    # Only process lines that contain eth_sendRawTransaction
-    if echo "$line" | grep -q '\\"method\\":\\"eth_sendRawTransaction\\"'; then
-        # Unescape the JSON (replace \" with ")
-        echo "$line" | sed 's/\\"/"/g'
-    fi
-done
+# Look for lines with recv= and eth_sendRawTransaction, extract and unescape JSON
+# Single pipeline - no subshells or loops
+grep 'recv=' | grep '\\"method\\":\\"eth_sendRawTransaction\\"' | sed -E 's/.*recv="(.*)"/\1/' | sed 's/\\"/"/g'
